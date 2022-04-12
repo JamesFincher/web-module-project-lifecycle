@@ -4,7 +4,7 @@ import Form from "./Form";
 import axios from "axios";
 
 const URL = "http://localhost:9000/api/todos";
-
+const PATCH = "http://localhost:9000/api/todos/";
 //init items for state
 const itemz = [];
 
@@ -23,18 +23,30 @@ export default class App extends React.Component {
     this.setState({ formValue: e.target.value });
   };
 
-  //callback for submit to process the new item submission
+  //is requested by onSubmit to add item to list, and will pass the newItem to postTodo function
   addItem = (e, item) => {
     console.log(item);
     const newItem = {
-      name: item,
       id: Date.now(),
+      name: item,
       completed: false,
     };
     this.postTodo(newItem);
   };
 
-  //what we call to process a submit onClick
+  //is onClick handler that will remove all completed items from the list.
+  // This function will filter the current state of items and return only the uncompleted items stored in filteredItems....
+  //filteredItem is then sent to postTodo to update the list on the api.
+  remove = () => {
+    const filteredItems = this.state.items.filter((item) => {
+      return !item.completed;
+    });
+    console.log("State Before Removal", this.state.items);
+    console.log("State After Removal", filteredItems);
+    this.postTodo(filteredItems);
+  };
+  
+  //what we call to process a submit onClick.... will call addItem which will create the item, and use postTodo to send it to the server...
   onSubmit = (e) => {
     e.preventDefault();
     // console.log(e);
@@ -45,6 +57,7 @@ export default class App extends React.Component {
 
   //disable a clicked item
   crossOff = (id) => {
+    axios.patch(PATCH + id, { completed: true });
     this.setState({
       items: this.state.items.map((item) => {
         if (id === item.id) {
@@ -57,7 +70,7 @@ export default class App extends React.Component {
     console.log(id);
   };
 
-  filter = (e) => {
+  filter = () => {
     this.setState({
       items: this.state.items.filter((item) => {
         return !item.completed;
@@ -71,6 +84,7 @@ export default class App extends React.Component {
     });
   };
   postTodo = (item) => {
+    console.log("item:", item);
     axios.post(URL, item).then((res) => {
       console.log(res.data);
       this.fetchTodo();
@@ -95,8 +109,12 @@ export default class App extends React.Component {
           formChange={this.formChange}
           onSubmit={this.onSubmit}
         />
-        <button onClick={this.filter}>Filter</button>
-      </>
+        <button onClick={this.filter}>Hide Completed Items</button>
+        {/* <br />
+        <span>
+          <button onClick={this.remove}>Remove Completed Items FOREVER</button>
+        </span>
+      </> */}
     );
   }
 }

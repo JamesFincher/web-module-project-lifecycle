@@ -1,24 +1,17 @@
 import React from "react";
 import TodoList from "./TodoList";
 import Form from "./Form";
+import axios from "axios";
+
+const URL = "http://localhost:9000/api/todos";
 
 //init items for state
-const itemz = [
-  {
-    name: "Organize Garage",
-    id: 1528817077286,
-    completed: false,
-  },
-  {
-    name: "Bake Cookies",
-    id: 1528817084358,
-    completed: false,
-  },
-];
+const itemz = [];
+
 export default class App extends React.Component {
   constructor() {
     super();
-    //setState happens here
+    //init setState happens here
     this.state = {
       items: itemz,
       formValue: "",
@@ -38,10 +31,7 @@ export default class App extends React.Component {
       id: Date.now(),
       completed: false,
     };
-    this.setState({
-      items: [...this.state.items, newItem],
-      formValue: "",
-    });
+    this.postTodo(newItem);
   };
 
   //what we call to process a submit onClick
@@ -74,6 +64,23 @@ export default class App extends React.Component {
       }),
     });
   };
+  fetchTodo = () => {
+    axios.get(URL).then((res) => {
+      console.log(res.data);
+      this.setState({ ...this.state, items: res.data.data });
+    });
+  };
+  postTodo = (item) => {
+    axios.post(URL, item).then((res) => {
+      console.log(res.data);
+      this.fetchTodo();
+      this.setState({ formValue: "" });
+    });
+  };
+  componentDidMount() {
+    console.log("Component mounted");
+    this.fetchTodo();
+  }
   render() {
     return (
       <>

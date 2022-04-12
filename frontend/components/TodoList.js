@@ -1,10 +1,20 @@
 import React from "react";
 import Todo from "./Todo";
+import axios from "axios";
+
+const URL = "http://localhost:9000/api/todos";
 
 export default class TodoList extends React.Component {
   constructor() {
     super();
   }
+  componentDidMount() {
+    console.log("TodoList mounted");
+  }
+  componentDidUpdate() {
+    console.log("TodoList updated");
+  }
+
   render() {
     const { items, crossOff } = this.props;
     return (
